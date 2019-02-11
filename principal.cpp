@@ -1,53 +1,55 @@
 #include "principal.h"
+#include <QPainterPath>
 
 Principal::Principal(QWidget *parent)
     : QGraphicsView(parent)
 {
     setUpGui();
-
 }
 
-void::Principal::setUpGui(){
+Principal::~Principal()
+{
+    delete itemToDraw;
+}
+
+void::Principal::setUpGui()
+{
+    isFirstTimeDrawing = true;
+    appTitle = "Canvas - Line Drawer";
 
     scene = new QGraphicsScene(this);
-    scene->setItemIndexMethod(QGraphicsScene::NoIndex);
+
+    QRectF rect(QPointF(0, 0), QSize(1024, 768));
+    scene->setSceneRect(rect);
 
     this->setRenderHint(QPainter::Antialiasing);
-    this->setMinimumSize(400,400);
     this->setWindowTitle(appTitle);
     this->setScene(scene);
 }
 
-void Principal::mousePressEvent(QMouseEvent *event){
-
-    if(event->button() == Qt::LeftButton){
-        createLine(event);
+void Principal::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton){
+        QPointF pointMap = this->mapToScene(event->pos());
+        createLine(pointMap);
     }
 
 }
 
-void Principal::createLine(QMouseEvent *ev){
-
-    QPointF pointMap = this->mapToScene(ev->pos());
-
-    if(isFirstTimeDrawing){
-
-        lastPosition = pointMap.x();
-        newPosition = pointMap.y();
-
-        isFirstTimeDrawing = !isFirstTimeDrawing;
-
-    }else{
-        itemToDraw = new QGraphicsLineItem();;
+void Principal::createLine(QPointF pointMap)
+{
+    if (isFirstTimeDrawing){
+        isFirstTimeDrawing = false;
+        itemToDraw = new QGraphicsPathItem;
         itemToDraw->setPen(QPen(Qt::blue, 3, Qt::SolidLine));
-        itemToDraw->setLine(lastPosition, newPosition, pointMap.x(), pointMap.y());
 
+        QPainterPath path;
+        path.moveTo(pointMap);
+        itemToDraw->setPath(path);
         scene->addItem(itemToDraw);
-
-        lastPosition = pointMap.x();
-        newPosition = pointMap.y();
+    } else {
+        QPainterPath path = itemToDraw->path();
+        path.cubicTo(pointMap, pointMap, pointMap);
+        itemToDraw->setPath(path);
     }
-
-
-
 }

@@ -2,11 +2,9 @@
 #define PRINCIPAL_H
 
 #include <QDebug>
-#include <QKeyEvent>
-#include <QMainWindow>
+#include <QMouseEvent>
 #include <QGraphicsView>
-#include<QGraphicsSceneMouseEvent>
-#include <QGraphicsLineItem>
+#include <QGraphicsPathItem>
 
 class Principal : public QGraphicsView
 {
@@ -14,23 +12,21 @@ class Principal : public QGraphicsView
 
 public:
     Principal(QWidget *parent = nullptr);
+    ~Principal();
 
-private:
-    bool isFirstTimeDrawing = true;
-    qreal lastPosition = 0, newPosition = 0;
-    QPointF point;
-    QGraphicsLineItem *itemToDraw;
-    QString const appTitle = "Canvas - Line Drawer";
-    QGraphicsScene *scene;
+
+protected:
+    void mousePressEvent(QMouseEvent * event) override;
 
 private:
     void setUpGui();
-    void createLine(QMouseEvent *ev);
+    void createLine(QPointF point);
 
-protected:
-   void mousePressEvent(QMouseEvent * event) override;
-
-
+    bool isFirstTimeDrawing;
+    QGraphicsPathItem *itemToDraw;
+    QString appTitle;
+    QGraphicsScene *scene;
+    QPainterPath path;
 };
 
 #endif // PRINCIPAL_H
